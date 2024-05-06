@@ -23,6 +23,18 @@ export class AuthService {
     return user;
   }
 
+  async validateUserById(
+    userId: User['_id'],
+  ): Promise<Omit<User, 'password'> | null> {
+    const user = await this.userService.findUserById(userId);
+
+    if (!user) return null;
+
+    user.password = undefined;
+
+    return user;
+  }
+
   async login(user: Omit<User, 'password'>) {
     return {
       id: user._id,
