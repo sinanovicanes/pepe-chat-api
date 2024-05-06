@@ -30,5 +30,14 @@ export class UserService {
     }
   }
 
-  async updateUser(updateUserDto: UpdateUserDto) {}
+  async updateUser(user: User, updateUserDto: UpdateUserDto) {
+    return this.userModel
+      .updateOne(
+        {
+          _id: user._id,
+        },
+        updateUserDto,
+      )
+      .exec();
+  }
 }
