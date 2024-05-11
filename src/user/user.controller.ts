@@ -1,4 +1,12 @@
-import { Body, Controller, Inject, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dtos/UpdateUserDto';
 import { AuthUser } from 'src/utils/decorators';
@@ -13,5 +21,10 @@ export class UserController {
   @Patch()
   updateUser(@AuthUser() user: User, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.updateUser(user, updateUserDto);
+  }
+
+  @Get('chats')
+  getUserChatList(@AuthUser() user: User) {
+    return this.userService.getUserChatList(user);
   }
 }

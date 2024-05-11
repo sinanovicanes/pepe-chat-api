@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { SignUpDto } from 'src/auth/dtos/SignUpDto';
 import { User } from 'src/database/schemas/user.schema';
 import { UpdateUserDto } from './dtos/UpdateUserDto';
+import { Chat } from 'src/database/schemas/chat.schema';
 
 @Injectable()
 export class UserService {
@@ -39,5 +40,40 @@ export class UserService {
         updateUserDto,
       )
       .exec();
+  }
+
+  async getUserChatList(user: User) {
+    const userWithChatRooms = await this.userModel
+      .findById(user._id)
+      .populate('chats')
+      .exec();
+
+    return userWithChatRooms.chats;
+  }
+
+  async addChatToUser(user: User, chatId: Chat['_id']) {
+    const result = await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $push: {
+          chats: chatId,
+        },
+      },
+    );
+
+    return result.acknowledged;
+  }
+
+  async removeChatFromUser(user: User, chatId: Chat['_id']) {
+    const result = await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $pullAll: {
+          chats: [{ _id: chatId }],
+        },
+      },
+    );
+
+    return result.acknowledged;
   }
 }

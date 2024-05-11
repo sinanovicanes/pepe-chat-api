@@ -1,5 +1,6 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
+import { Chat } from './chat.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -24,6 +25,9 @@ export class User {
 
   @Prop({ default: Date.now })
   createdAt: Date;
+
+  @Prop([{ type: MongooseSchema.Types.ObjectId, ref: Chat.name }])
+  chats: Chat[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
