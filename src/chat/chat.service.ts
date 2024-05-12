@@ -63,16 +63,14 @@ export class ChatService {
       throw new HttpException('Chat not found', HttpStatus.NOT_FOUND);
 
     try {
-      const result = await this.chatModel
-        .updateOne(
-          { id: chatRoom._id },
-          {
-            $pullAll: {
-              users: [{ id: user._id }],
-            },
+      const result = await this.chatModel.updateOne(
+        { _id: chatRoom._id },
+        {
+          $pullAll: {
+            users: [{ _id: user._id }],
           },
-        )
-        .exec();
+        },
+      );
 
       console.log(result.acknowledged);
 
