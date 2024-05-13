@@ -10,6 +10,12 @@ export class AuthService {
   @Inject() private readonly userService: UserService;
   @Inject() private readonly jwtService: JwtService;
 
+  async validateToken(token: string) {
+    return this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET,
+    });
+  }
+
   async validateUser(
     username: string,
     pass: string,
