@@ -1,7 +1,7 @@
 import { IsNotEmpty, MaxLength } from 'class-validator';
 
-export class CreateChatMessageDto {
-  @MaxLength(500)
+export class CreateMessageDto {
+  @MaxLength(250)
   @IsNotEmpty()
   message: string;
 }

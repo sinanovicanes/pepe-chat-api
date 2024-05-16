@@ -1,6 +1,7 @@
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Schema as MongooseSchema } from 'mongoose';
 import { Chat } from './chat.schema';
+import { Exclude } from 'class-transformer';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -18,6 +19,7 @@ export class User {
   avatar: string;
 
   @Prop({})
+  @Exclude()
   password: string;
 
   @Prop({ default: 'local' })

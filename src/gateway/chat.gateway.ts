@@ -1,13 +1,18 @@
+import { OnEvent } from '@nestjs/event-emitter';
 import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
-  ConnectedSocket,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
+import { ChatMessage } from 'src/database/schemas/chat.message.schema';
+import { User } from 'src/database/schemas/user.schema';
+import { ChatWebsocketEvents } from 'src/enums/chat.websocket.events';
+import { InternalEvents } from 'src/enums/internal.events';
 import { AuthenticatedSocket } from 'src/types/socket';
 
 @WebSocketGateway({
@@ -25,12 +30,45 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   handleConnection(socket: AuthenticatedSocket, ...args: any[]) {
-    console.log('Incoming Connection');
-    socket.emit('connected', {});
+    console.log(`CHAT GATEWAY: ${socket.user.username} connected`);
   }
 
   handleDisconnect(socket: AuthenticatedSocket) {
-    console.log('handleDisconnect');
-    console.log(`${socket.user.username} disconnected.`);
+    console.log(`CHAT GATEWAY: ${socket.user.username} disconnected`);
+  }
+
+  @SubscribeMessage(ChatWebsocketEvents.JOIN)
+  joinChat(
+    @ConnectedSocket() socket: AuthenticatedSocket,
+    @MessageBody() message: string,
+  ) {
+    const roomName = `chat-rooms-${message}`;
+    socket.join(roomName);
+    this.server.to(roomName).emit('onUserJoined', {
+      username: socket.user.username,
+      avatar: socket.user.avatar,
+      date: Date.now(),
+    });
+  }
+
+  @OnEvent(InternalEvents.MESSAGE_CREATED)
+  onNewMessage(payload: {
+    createdMessage: ChatMessage;
+    user: User;
+    roomName: string;
+  }) {
+    const roomName = `chat-rooms-${payload.roomName}`;
+    console.log(roomName);
+
+    this.server.to(roomName).emit('newMessage', {
+      _id: payload.createdMessage._id,
+      date: payload.createdMessage.createdAt,
+      message: payload.createdMessage.message,
+      user: {
+        _id: payload.user._id,
+        username: payload.user.username,
+        avatar: payload.user.avatar,
+      },
+    });
   }
 }

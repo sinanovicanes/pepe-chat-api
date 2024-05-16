@@ -19,7 +19,7 @@ export class ChatMessage {
   user: User;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'chat' })
-  chat: Chat;
+  chatRoom: Chat;
 }
 
 export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);
