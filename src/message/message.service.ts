@@ -52,4 +52,24 @@ export class MessageService {
       );
     }
   }
+
+  async getChatMessages(roomName: string) {
+    const chatRoom = await this.chatService.getChatRoomByName(roomName);
+
+    if (!chatRoom) return [];
+
+    const messages = await this.chatMessageModel
+      .find(
+        {
+          chatRoom: chatRoom._id,
+        },
+        {
+          message: true,
+          createdAt: 'date',
+        },
+      )
+      .populate('user', ['username', 'avatar']);
+
+    return messages;
+  }
 }

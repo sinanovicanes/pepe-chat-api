@@ -15,7 +15,7 @@ export class ChatMessage {
   @Prop({ default: Date.now })
   createdAt: Date;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'user' })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User' })
   user: User;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'chat' })
