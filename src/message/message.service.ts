@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InternalEvents } from 'src/enums/internal.events';
 import { ChatService } from 'src/chat/chat.service';
+import { MessageCreatedEvent } from './events/MessageCreated';
 
 @Injectable()
 export class MessageService {
@@ -38,11 +39,10 @@ export class MessageService {
       chatRoom.messages.push(createdMessage);
       await chatRoom.save();
 
-      this.eventEmitter.emit(InternalEvents.MESSAGE_CREATED, {
-        user,
-        createdMessage,
-        roomName,
-      });
+      this.eventEmitter.emit(
+        InternalEvents.MESSAGE_CREATED,
+        new MessageCreatedEvent(user, message, roomName),
+      );
 
       return createdMessage;
     } catch {

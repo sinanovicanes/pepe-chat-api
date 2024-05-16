@@ -9,10 +9,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { ChatMessage } from 'src/database/schemas/chat.message.schema';
-import { User } from 'src/database/schemas/user.schema';
 import { ChatWebsocketEvents } from 'src/enums/chat.websocket.events';
 import { InternalEvents } from 'src/enums/internal.events';
+import { MessageCreatedEvent } from 'src/message/events/MessageCreated';
 import { AuthenticatedSocket } from 'src/types/socket';
 
 @WebSocketGateway({
@@ -52,18 +51,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @OnEvent(InternalEvents.MESSAGE_CREATED)
-  onNewMessage(payload: {
-    createdMessage: ChatMessage;
-    user: User;
-    roomName: string;
-  }) {
+  onNewMessage(payload: MessageCreatedEvent) {
     const roomName = `chat-rooms-${payload.roomName}`;
     console.log(roomName);
 
     this.server.to(roomName).emit('newMessage', {
-      _id: payload.createdMessage._id,
-      date: payload.createdMessage.createdAt,
-      message: payload.createdMessage.message,
+      _id: payload.message._id,
+      date: payload.message.createdAt,
+      message: payload.message.message,
       user: {
         _id: payload.user._id,
         username: payload.user.username,
