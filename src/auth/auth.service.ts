@@ -16,6 +16,22 @@ export class AuthService {
     });
   }
 
+  async validateUserByToken(
+    token: string,
+  ): Promise<Omit<User, 'password'> | null> {
+    try {
+      const jwtData = await this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+
+      if (!jwtData) return null;
+
+      return this.validateUserById(jwtData.sub);
+    } catch {
+      return null;
+    }
+  }
+
   async validateUser(
     username: string,
     pass: string,

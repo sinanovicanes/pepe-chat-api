@@ -1,9 +1,8 @@
-import { IoAdapter } from '@nestjs/platform-socket.io';
-import { Socket } from 'socket.io';
 import { INestApplicationContext, Inject } from '@nestjs/common';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { AuthenticatedSocket } from 'src/types/socket';
 import { User } from 'src/database/schemas/user.schema';
+import { AuthenticatedSocket } from 'src/types/socket';
 
 export class WebsocketAdapter extends IoAdapter {
   @Inject() private authService: AuthService;
@@ -23,22 +22,21 @@ export class WebsocketAdapter extends IoAdapter {
       const { authorization } = socket.handshake.headers;
 
       if (!authorization) {
-        return next(new Error('Not Authenticated. No cookies were sent'));
+        return next(new Error('Authorization header not found!'));
       }
 
       const token = authorization.split(' ')[1];
 
       try {
-        const retVal = await this.authService.validateToken(token);
-        const user = (await this.authService.validateUserById(
-          retVal.sub,
+        const user = (await this.authService.validateUserByToken(
+          token,
         )) as User;
 
         if (!user) return next(new Error('User not found'));
 
         socket.user = user;
       } catch {
-        next(new Error('Authorization faield'));
+        next(new Error('Authorization failed'));
       }
 
       next();
