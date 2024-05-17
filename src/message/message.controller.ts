@@ -12,14 +12,14 @@ import { AuthUser } from 'src/utils/decorators';
 import { CreateMessageDto } from './dtos/CreateMessageDto';
 import { MessageService } from './message.service';
 import { JwtGuard } from 'src/auth/guards/jwt.auth.guard';
-import { ChatGuard } from './guars/chat.guard';
+import { ChatAccessGuard } from '../chat/guards/chat.access.guard';
 
 @UseGuards(JwtGuard)
 @Controller('message')
 export class MessageController {
   @Inject() private readonly messageService: MessageService;
 
-  @UseGuards(ChatGuard)
+  @UseGuards(ChatAccessGuard)
   @Get('/:roomName')
   async getChatMessages(@Param('roomName') roomName: string) {
     return this.messageService.getChatMessages(roomName);
